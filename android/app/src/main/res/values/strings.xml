@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Eunoia Mental Health</string>
+    <string name="title_activity_main">Eunoia Mental Health</string>
+    <string name="package_name">com.eunoia.mentalhealth</string>
+    <string name="custom_url_scheme">com.eunoia.mentalhealth</string>
+</resources>

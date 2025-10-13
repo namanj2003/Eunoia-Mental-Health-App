@@ -1,0 +1,211 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Testing
+coverage/
+.nyc_output
+
+# Production Build
+build/
+dist/
+*.local
+
+# Environment Variables (CRITICAL - DO NOT COMMIT!)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.production
+*.env
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.swp
+*.swo
+*~
+
+# OS Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Capacitor
+.capacitor/
+android/app/build/
+android/app/release/
+android/app/debug/
+android/.gradle/
+android/gradle/
+android/build/
+android/local.properties
+android/.idea/
+android/captures/
+android/app/src/main/assets/public/
+ios/App/App.xcarchive/
+ios/App/build/
+ios/Pods/
+ios/App/public/
+ios/.DS_Store
+DerivedData/
+*.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
+
+# Android
+*.apk
+*.aab
+*.ap_
+*.dex
+*.class
+bin/
+gen/
+out/
+.gradle/
+local.properties
+*.iml
+.externalNativeBuild
+.cxx
+
+# iOS
+*.ipa
+*.dSYM.zip
+*.dSYM
+xcuserdata/
+DerivedData/
+.build/
+Pods/
+Carthage/
+*.xcworkspace
+!*.xcworkspace/contents.xcworkspacedata
+*.xcuserstate
+*.moved-aside
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+
+# Xcode Patch
+*.hmap
+*.ipa
+*.xcuserstate
+project.xcworkspace
+
+# Swift Package Manager
+.swiftpm/
+Package.resolved
+
+# CocoaPods
+Pods/
+*.xcworkspace/
+Podfile.lock
+
+# Secrets & Keys (CRITICAL!)
+*.pem
+*.key
+*.cert
+*.p12
+*.mobileprovision
+google-services.json
+GoogleService-Info.plist
+
+# Temporary files
+*.tmp
+*.temp
+*.cache
+.cache/
+.parcel-cache/
+
+# Debug
+debug.log
+npm-debug.log
+yarn-debug.log
+
+# Misc
+.turbo
+.vercel
+.output
+.nuxt
+.next
+out
+.docusaurus
+.serverless/
+.fusebox/
+.dynamodb/
+.tern-port
+.vscode-test
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# TypeScript
+*.tsbuildinfo
+
+# Mac files
+.DS_Store
+
+# Windows files
+Thumbs.db
+Desktop.ini
+
+# Backup files
+*.backup
+*.bak
+*.old
+*.orig
+
+# Generated files
+*.generated.*
+
+#.MD Files
+*.md

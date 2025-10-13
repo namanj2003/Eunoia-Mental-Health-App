@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug API Configuration</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .debug-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .success { color: green; font-weight: bold; }
+        .error { color: red; font-weight: bold; }
+        pre {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #5568d3;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 API Configuration Debug</h1>
+    
+    <div class="debug-section">
+        <h2>Environment Variables</h2>
+        <div id="envVars"></div>
+    </div>
+
+    <div class="debug-section">
+        <h2>Test API Call (With Axios)</h2>
+        <button onclick="testAxios()">Test with Axios</button>
+        <div id="axiosResult"></div>
+    </div>
+
+    <div class="debug-section">
+        <h2>Test API Call (Direct Fetch)</h2>
+        <button onclick="testFetch()">Test with Fetch</button>
+        <div id="fetchResult"></div>
+    </div>
+
+    <div class="debug-section">
+        <h2>Browser Information</h2>
+        <div id="browserInfo"></div>
+    </div>
+
+    <script type="module">
+        // Display environment variables
+        const envDiv = document.getElementById('envVars');
+        const apiUrl = import.meta.env.VITE_API_URL;
+        
+        envDiv.innerHTML = `
+            <p><strong>VITE_API_URL:</strong> ${apiUrl || '<span class="error">NOT SET</span>'}</p>
+            <p><strong>Mode:</strong> ${import.meta.env.MODE}</p>
+            <p><strong>Dev:</strong> ${import.meta.env.DEV}</p>
+            <p><strong>All env vars:</strong></p>
+            <pre>${JSON.stringify(import.meta.env, null, 2)}</pre>
+        `;
+
+        // Display browser info
+        const browserDiv = document.getElementById('browserInfo');
+        browserDiv.innerHTML = `
+            <p><strong>User Agent:</strong> ${navigator.userAgent}</p>
+            <p><strong>Current URL:</strong> ${window.location.href}</p>
+            <p><strong>Origin:</strong> ${window.location.origin}</p>
+        `;
+
+        // Test with Axios
+        window.testAxios = async function() {
+            const resultDiv = document.getElementById('axiosResult');
+            resultDiv.innerHTML = '<p>Testing with axios...</p>';
+            
+            try {
+                // Import axios
+                const axios = (await import('https://cdn.jsdelivr.net/npm/axios@1.6.0/+esm')).default;
+                
+                const response = await axios.post('http://localhost:5000/api/auth/register', {
+                    name: 'Test User Axios',
+                    email: `axios${Date.now()}@test.com`,
+                    password: 'password123'
+                });
+                
+                resultDiv.innerHTML = `
+                    <p class="success">✅ Axios Request Successful!</p>
+                    <p><strong>Status:</strong> ${response.status}</p>
+                    <pre>${JSON.stringify(response.data, null, 2)}</pre>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <p class="error">❌ Axios Request Failed!</p>
+                    <p><strong>Error Type:</strong> ${error.name}</p>
+                    <p><strong>Error Message:</strong> ${error.message}</p>
+                    ${error.response ? `
+                        <p><strong>Status:</strong> ${error.response.status}</p>
+                        <pre>${JSON.stringify(error.response.data, null, 2)}</pre>
+                    ` : ''}
+                    <p><strong>Full Error:</strong></p>
+                    <pre>${JSON.stringify(error, Object.getOwnPropertyNames(error), 2)}</pre>
+                `;
+            }
+        };
+
+        // Test with Fetch
+        window.testFetch = async function() {
+            const resultDiv = document.getElementById('fetchResult');
+            resultDiv.innerHTML = '<p>Testing with fetch...</p>';
+            
+            try {
+                const response = await fetch('http://localhost:5000/api/auth/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        name: 'Test User Fetch',
+                        email: `fetch${Date.now()}@test.com`,
+                        password: 'password123'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <p class="success">✅ Fetch Request Successful!</p>
+                        <p><strong>Status:</strong> ${response.status}</p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <p class="error">❌ Fetch Request Failed!</p>
+                        <p><strong>Status:</strong> ${response.status}</p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <p class="error">❌ Network Error with Fetch!</p>
+                    <p><strong>Error Type:</strong> ${error.name}</p>
+                    <p><strong>Error Message:</strong> ${error.message}</p>
+                    <p><strong>This usually means:</strong></p>
+                    <ul>
+                        <li>Backend is not running</li>
+                        <li>CORS is not configured correctly</li>
+                        <li>Network connection issue</li>
+                    </ul>
+                    <pre>${error.stack}</pre>
+                `;
+            }
+        };
+    </script>
+</body>
+</html>
