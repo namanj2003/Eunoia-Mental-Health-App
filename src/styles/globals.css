@@ -187,3 +187,15 @@
 html {
   font-size: var(--font-size);
 }
+
+/* Add this to the end of your globals.css file */
+.flex.justify-center > div[style*="gradient"],
+.flex.justify-center > strong[style*="gradient"] {
+  color: inherit !important;
+}
+
+/* Weekly badge text override */
+.weekly-badge-text {
+  color: currentColor !important;
+  -webkit-text-fill-color: currentColor !important;
+}

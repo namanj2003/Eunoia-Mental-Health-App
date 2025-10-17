@@ -1,6 +1,6 @@
 {
   "appId": "com.eunoia.mentalhealth",
-  "appName": "Eunoia Mental Health",
+  "appName": "Eunoia",
   "webDir": "build",
   "server": {
     "androidScheme": "https"

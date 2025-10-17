@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Eunoia Icon - From Exact Code</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 { color: #667eea; }
+        button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            margin: 20px;
+        }
+        button:hover { transform: scale(1.05); }
+        canvas { border: 2px solid #ddd; border-radius: 10px; }
+    </style>
+</head>
+<body>
+    <h1>🧠 Eunoia Icon - From Your Exact Code</h1>
+    <canvas id="canvas" width="1024" height="1024"></canvas>
+    <button onclick="downloadIcon()">📥 Download icon.png</button>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Your exact code translated to canvas:
+        // Background: bg-gradient-to-br from-[#667eea] via-[#764ba2] to-[#f093fb]
+        const gradient = ctx.createLinearGradient(0, 0, 1024, 1024);
+        gradient.addColorStop(0, '#667eea');
+        gradient.addColorStop(0.5, '#764ba2');
+        gradient.addColorStop(1, '#f093fb');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, 1024, 1024);
+        
+        // Your code: w-24 h-24 (96px) scaled up to fit icon
+        // For 1024px icon, scale the 96px box to ~650px
+        const boxSize = 650;
+        const boxX = (1024 - boxSize) / 2;
+        const boxY = (1024 - boxSize) / 2;
+        
+        // bg-white/20 backdrop-blur-lg rounded-3xl shadow-lg
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+        ctx.shadowBlur = 30;
+        ctx.shadowOffsetY = 10;
+        
+        // rounded-3xl (24px at 96px = 25% radius)
+        const radius = boxSize * 0.25;
+        roundRect(ctx, boxX, boxY, boxSize, boxSize, radius);
+        ctx.fill();
+        
+        // Reset shadow
+        ctx.shadowColor = 'transparent';
+        ctx.shadowBlur = 0;
+        ctx.shadowOffsetY = 0;
+        
+        // Your code: text-4xl font-bold text-white flex items-center
+        // Brain size={32} at 96px container = 32/96 = 33%
+        // For 650px box: 650 * 0.33 = 215px
+        drawBrainIconLucide(ctx, 512 - boxSize * 0.18, 512, boxSize * 0.28);
+        
+        // epsilon: text-4xl (36px at 96px = 37.5%)
+        // For 650px box: 650 * 0.375 = 244px
+        ctx.fillStyle = '#ffffff';
+        ctx.font = `bold ${boxSize * 0.375}px Georgia, serif`;
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('ε', 512 + boxSize * 0.05, 512);
+        
+        function roundRect(ctx, x, y, w, h, r) {
+            ctx.beginPath();
+            ctx.moveTo(x + r, y);
+            ctx.arcTo(x + w, y, x + w, y + h, r);
+            ctx.arcTo(x + w, y + h, x, y + h, r);
+            ctx.arcTo(x, y + h, x, y, r);
+            ctx.arcTo(x, y, x + w, y, r);
+            ctx.closePath();
+        }
+        
+        function drawBrainIconLucide(ctx, x, y, size) {
+            ctx.fillStyle = '#ffffff';
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = size * 0.06;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            
+            ctx.save();
+            ctx.translate(x, y);
+            
+            // Lucide Brain icon paths (simplified)
+            // Main brain outline
+            ctx.beginPath();
+            ctx.moveTo(-size*0.3, size*0.15);
+            ctx.bezierCurveTo(-size*0.35, size*0.25, -size*0.35, size*0.35, -size*0.25, size*0.4);
+            ctx.bezierCurveTo(-size*0.15, size*0.45, 0, size*0.45, size*0.1, size*0.4);
+            ctx.bezierCurveTo(size*0.2, size*0.35, size*0.3, size*0.3, size*0.35, size*0.2);
+            ctx.bezierCurveTo(size*0.4, size*0.05, size*0.35, -size*0.1, size*0.25, -size*0.2);
+            ctx.bezierCurveTo(size*0.15, -size*0.3, 0, -size*0.35, -size*0.15, -size*0.35);
+            ctx.bezierCurveTo(-size*0.3, -size*0.35, -size*0.4, -size*0.25, -size*0.4, -size*0.1);
+            ctx.bezierCurveTo(-size*0.4, 0, -size*0.35, size*0.1, -size*0.3, size*0.15);
+            ctx.stroke();
+            
+            // Left hemisphere detail
+            ctx.beginPath();
+            ctx.moveTo(-size*0.25, -size*0.15);
+            ctx.bezierCurveTo(-size*0.3, -size*0.05, -size*0.3, size*0.05, -size*0.25, size*0.15);
+            ctx.stroke();
+            
+            // Right hemisphere detail
+            ctx.beginPath();
+            ctx.moveTo(size*0.15, -size*0.15);
+            ctx.bezierCurveTo(size*0.2, -size*0.05, size*0.2, size*0.05, size*0.15, size*0.15);
+            ctx.stroke();
+            
+            // Center line
+            ctx.beginPath();
+            ctx.moveTo(-size*0.05, -size*0.25);
+            ctx.lineTo(-size*0.05, size*0.25);
+            ctx.stroke();
+            
+            ctx.restore();
+        }
+        
+        function downloadIcon() {
+            const link = document.createElement('a');
+            link.download = 'icon.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+    </script>
+</body>
+</html>

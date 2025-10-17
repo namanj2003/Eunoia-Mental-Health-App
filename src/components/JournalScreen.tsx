@@ -101,6 +101,10 @@ export const JournalScreen: React.FC = () => {
             <h1 className="text-3xl font-bold bg-gradient-to-r from-[#667eea] to-[#f093fb] bg-clip-text text-transparent">
               Journal
             </h1>
+            <div className="flex items-center gap-2 px-3 py-1 bg-[#667eea] rounded-full">
+              <BookOpen className="text-white" size={14} />
+              <span className="text-white text-sm font-semibold">{journalEntries.length} {journalEntries.length === 1 ? 'entry' : 'entries'}</span>
+            </div>
             <div className="flex items-center gap-1 px-3 py-1 bg-gradient-to-r from-[#667eea] to-[#f093fb] rounded-full">
               <Flame className="text-white" size={14} />
               <span className="text-white text-sm font-semibold">{streaks.journal}</span>

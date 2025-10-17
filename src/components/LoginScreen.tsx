@@ -23,6 +23,11 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
+  // Helper function for email validation
+  const isValidEmail = (email: string) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
+
   // Clear form when switching views
   const switchView = (mode: ViewMode) => {
     setViewMode(mode);
@@ -37,168 +42,217 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
     setShowNewPassword(false);
   };
 
-  const handleSubmit = async (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    
-    setError('');
-    setSuccess('');
-    
-    // Validation based on view mode
-    if (viewMode === 'forgot-password') {
-      if (!email) {
-        setError('Please enter your email address');
-        return;
-      }
-      
-      setLoading(true);
-      try {
-        const { authService } = await import('../services/api.service');
-        await authService.forgotPassword(email);
-        setSuccess('OTP sent to your email! Please check your inbox.');
-        setViewMode('verify-otp');
-      } catch (err: any) {
-        setError(err.response?.data?.message || 'Failed to send OTP. Please try again.');
-      } finally {
-        setLoading(false);
-      }
-      return;
-    }
+const handleSubmit = async (e?: React.FormEvent) => {
+  if (e) e.preventDefault();
+  
+  setError('');
+  setSuccess('');
 
-    if (viewMode === 'verify-otp') {
-      if (!otp || otp.length !== 6) {
-        setError('Please enter the 6-digit OTP');
-        return;
-      }
-      
-      setLoading(true);
-      try {
-        const { authService } = await import('../services/api.service');
-        await authService.verifyOTP(email, otp);
-        setSuccess('OTP verified! Please enter your new password.');
-        setViewMode('reset-password');
-      } catch (err: any) {
-        setError(err.response?.data?.message || 'Invalid or expired OTP. Please try again.');
-      } finally {
-        setLoading(false);
-      }
-      return;
-    }
-
-    if (viewMode === 'reset-password') {
-      if (!newPassword || newPassword.length < 6) {
-        setError('Password must be at least 6 characters');
-        return;
-      }
-      
-      setLoading(true);
-      try {
-        const { authService } = await import('../services/api.service');
-        await authService.resetPasswordWithOTP(email, otp, newPassword);
-        setSuccess('Password reset successful! Logging you in...');
-        setTimeout(() => onLoginSuccess(), 1500);
-      } catch (err: any) {
-        setError(err.response?.data?.message || 'Failed to reset password. Please try again.');
-      } finally {
-        setLoading(false);
-      }
-      return;
-    }
-    
-    // Login/Signup validation
-    if (!email || !password) {
+  // Check if all required fields are empty based on view mode
+  if (viewMode === 'login') {
+    if (!email && !password) {
       setError('Please fill in all fields');
       return;
     }
-    
+  }
+
+  if (viewMode === 'signup') {
+    if (!name && !email && !password) {
+      setError('Please fill in all fields');
+      return;
+    }
+  }
+
+  if (viewMode === 'forgot-password') {
+    if (!email) {
+      setError('Please enter your email address');
+      return;
+    }
+  }
+
+  if (viewMode === 'verify-otp') {
+    if (!otp) {
+      setError('Please enter the 6-digit OTP');
+      return;
+    }
+  }
+
+  if (viewMode === 'reset-password') {
+    if (!newPassword) {
+      setError('Please enter your new password');
+      return;
+    }
+  }
+
+  // Individual field validation for login and signup
+  if (viewMode === 'login' || viewMode === 'signup') {
+    if (!email) {
+      setError('Please enter your email address');
+      return;
+    }
+    if (!isValidEmail(email)) {
+      setError('Please enter a valid email address');
+      return;
+    }
+    if (!password) {
+      setError('Please enter your password');
+      return;
+    }
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters');
+      return;
+    }
     if (viewMode === 'signup' && !name) {
       setError('Please enter your name');
       return;
     }
+  }
+
+  // Email validation for forgot-password
+  if (viewMode === 'forgot-password') {
+    if (!isValidEmail(email)) {
+      setError('Please enter a valid email address');
+      return;
+    }
     
-    if (password.length < 6) {
+    setLoading(true);
+    try {
+      const { authService } = await import('../services/api.service');
+      await authService.forgotPassword(email);
+      setSuccess('OTP sent to your email! Please check your inbox.');
+      setViewMode('verify-otp');
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Failed to send OTP. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+    return;
+  }
+
+  // OTP verification flow
+  if (viewMode === 'verify-otp') {
+    if (otp.length !== 6) {
+      setError('Please enter the complete 6-digit OTP');
+      return;
+    }
+    
+    setLoading(true);
+    try {
+      const { authService } = await import('../services/api.service');
+      await authService.verifyOTP(email, otp);
+      setSuccess('OTP verified! Please enter your new password.');
+      setViewMode('reset-password');
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Invalid or expired OTP. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+    return;
+  }
+
+  // Reset password flow
+  if (viewMode === 'reset-password') {
+    if (newPassword.length < 6) {
       setError('Password must be at least 6 characters');
       return;
     }
     
     setLoading(true);
-    
     try {
       const { authService } = await import('../services/api.service');
-      
-      if (viewMode === 'login') {
-        console.log('Attempting login...', { email });
-        const response = await authService.login(email, password);
-        console.log('Login response:', response);
-        
-        // Validate the response before calling success callback
-        if (response.success && response.data && response.data.token) {
-          console.log('Login successful - token received');
-          onLoginSuccess();
-        } else {
-          console.error('Login failed - no token in response');
-          setError('Login failed. Please try again.');
-        }
-      } else if (viewMode === 'signup') {
-        console.log('Attempting registration...', { name, email });
-        const response = await authService.register(name, email, password);
-        console.log('Registration response:', response);
-        
-        // Validate the response
-        if (response.success) {
-          console.log('Registration successful');
-          // After successful registration, show success message and switch to login
-          setSuccess('Account created successfully! Please log in.');
-          setName('');
-          setEmail('');
-          setPassword('');
-          setViewMode('login');
-        } else {
-          setError('Registration failed. Please try again.');
-        }
-      }
+      await authService.resetPasswordWithOTP(email, otp, newPassword);
+      setSuccess('Password reset successful! Logging you in...');
+      setTimeout(() => onLoginSuccess(), 1500);
     } catch (err: any) {
-      console.error('Authentication error:', err);
-      
-      let errorMessage = 'Authentication failed';
-      
-      if (err.code === 'ERR_NETWORK' || err.message === 'Network Error') {
-        errorMessage = 'Cannot connect to server. Please check if the backend is running.';
-      } else if (err.response?.data?.message) {
-        // Use the specific error message from backend
-        errorMessage = err.response.data.message;
-      } else if (err.message) {
-        errorMessage = err.message;
-      }
-      
-      setError(errorMessage);
+      setError(err.response?.data?.message || 'Failed to reset password. Please try again.');
     } finally {
       setLoading(false);
     }
-  };
+    return;
+  }
+  
+  setLoading(true);
+  
+  try {
+    const { authService } = await import('../services/api.service');
+    
+    if (viewMode === 'login') {
+      console.log('Attempting login...', { email });
+      const response = await authService.login(email, password);
+      console.log('Login response:', response);
+      
+      // Validate the response before calling success callback
+      if (response.success && response.data && response.data.token) {
+        console.log('Login successful - token received');
+        onLoginSuccess();
+      } else {
+        console.error('Login failed - no token in response');
+        setError('Login failed. Please try again.');
+      }
+    } else if (viewMode === 'signup') {
+      console.log('Attempting registration...', { name, email });
+      const response = await authService.register(name, email, password);
+      console.log('Registration response:', response);
+      
+      // Validate the response
+      if (response.success) {
+        console.log('Registration successful');
+        // After successful registration, show success message and switch to login
+        setSuccess('Account created successfully! Please log in.');
+        setName('');
+        setEmail('');
+        setPassword('');
+        setViewMode('login');
+      } else {
+        setError('Registration failed. Please try again.');
+      }
+    }
+  } catch (err: any) {
+    console.error('Authentication error:', err);
+    
+    let errorMessage = 'Authentication failed';
+    
+    if (err.code === 'ERR_NETWORK' || err.message === 'Network Error') {
+      errorMessage = 'Cannot connect to server. Please check if the backend is running.';
+    } else if (err.response?.data?.message) {
+      // Use the specific error message from backend
+      errorMessage = err.response.data.message;
+    } else if (err.message) {
+      errorMessage = err.message;
+    }
+    
+    setError(errorMessage);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#667eea] via-[#764ba2] to-[#f093fb] flex flex-col items-center justify-center p-6 max-w-md mx-auto">
-      <div className="w-full max-w-sm space-y-8">
+    <div className="min-h-screen bg-gradient-to-br from-[#667eea] via-[#764ba2] to-[#f093fb] flex flex-col items-center justify-center p-4 max-w-md mx-auto overflow-y-auto" style={{ 
+      paddingTop: 'max(1rem, env(safe-area-inset-top))',
+      paddingBottom: 'max(1rem, env(safe-area-inset-bottom))'
+    }}>
+      <div className="w-full max-w-sm space-y-4 py-4">
         {/* Logo and Brand */}
-        <div className="text-center space-y-6">
+        <div className="text-center space-y-3">
           <div className="relative">
-            <div className="w-24 h-24 mx-auto bg-white/20 backdrop-blur-lg rounded-3xl flex items-center justify-center shadow-lg">
+            <div className="w-20 h-20 mx-auto bg-white/20 backdrop-blur-lg rounded-2xl flex items-center justify-center shadow-lg">
               <div className="text-4xl font-bold text-white flex items-center">
-                <Brain className="mr-2" size={32} />
+                <Brain className="mr-1" size={28} />
                 ε
               </div>
             </div>
           </div>
-          <div className="space-y-2">
-            <h1 className="text-4xl font-bold text-white">Eunoia</h1>
-            <p className="text-white/80 text-lg">Your mindful companion</p>
-            <p className="text-white/60 text-sm">Beautiful thinking, beautiful mind</p>
+          <div className="space-y-1">
+            <h1 className="text-3xl font-bold text-white">Eunoia</h1>
+            <p className="text-white/80 text-sm">Your mindful companion</p>
           </div>
         </div>
 
         {/* Login/Register/Forgot Password Form */}
-        <Card className="p-6 bg-white/10 backdrop-blur-lg border-white/20 shadow-xl">
-          <CardContent className="p-0 space-y-6">
+        <Card className="p-5 bg-white/10 backdrop-blur-lg border-white/20 shadow-xl">
+          <CardContent className="p-0 space-y-4">
             {/* Back button for forgot password and OTP views */}
             {(viewMode === 'forgot-password' || viewMode === 'verify-otp' || viewMode === 'reset-password') && (
               <button
@@ -213,14 +267,14 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
 
             {/* Title based on view mode */}
             <div className="text-center">
-              <h2 className="text-2xl font-bold text-white">
+              <h2 className="text-xl font-bold text-white">
                 {viewMode === 'login' && 'Welcome Back'}
                 {viewMode === 'signup' && 'Create Account'}
                 {viewMode === 'forgot-password' && 'Reset Password'}
                 {viewMode === 'verify-otp' && 'Verify OTP'}
                 {viewMode === 'reset-password' && 'New Password'}
               </h2>
-              <p className="text-white/60 text-sm mt-2">
+              <p className="text-white/70 text-sm mt-1.5">
                 {viewMode === 'login' && 'Continue your journey to wellness'}
                 {viewMode === 'signup' && 'Begin your mindful journey'}
                 {viewMode === 'forgot-password' && 'Enter your email to receive an OTP'}
@@ -231,19 +285,19 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
 
             {/* Success Message */}
             {success && (
-              <div className="p-3 bg-green-500/20 border border-green-500/30 rounded-xl">
-                <p className="text-white text-sm text-center">{success}</p>
+              <div className="p-2.5 bg-green-500/20 border border-green-500/30 rounded-xl">
+                <p className="text-white text-xs text-center">{success}</p>
               </div>
             )}
 
             {/* Error Message */}
             {error && (
-              <div className="p-3 bg-red-500/20 border border-red-500/30 rounded-xl">
-                <p className="text-white text-sm text-center">{error}</p>
+              <div className="p-2.5 bg-red-500/20 border border-red-500/30 rounded-xl">
+                <p className="text-white text-xs text-center">{error}</p>
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-3">
               {/* Name Field (Sign Up Only) */}
               {viewMode === 'signup' && (
                 <div className="space-y-2">
@@ -416,8 +470,8 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
 
               {/* Toggle between login and signup - Hidden during password reset flow */}
               {(viewMode === 'login' || viewMode === 'signup') && (
-                <div className="text-center pt-2">
-                  <p className="text-white/70 text-sm">
+                <div className="text-center pt-1">
+                  <p className="text-white/70 text-xs">
                     {viewMode === 'login' ? "Don't have an account? " : 'Already have an account? '}
                     <button
                       type="button"

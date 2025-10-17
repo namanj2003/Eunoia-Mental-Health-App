@@ -25,7 +25,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({ currentScreen, setCurrentS
   const navItems = allNavItems.filter(item => item.alwaysShow || item.showIf);
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-lg border-t border-gray-100 px-4 py-3 max-w-md mx-auto shadow-lg">
+    <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-lg border-t border-gray-100 px-4 py-3 max-w-md mx-auto shadow-lg" style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))' }}>
       <div className="flex justify-around items-center">
         {navItems.map(({ screen, icon: Icon, label }) => (
           <button
