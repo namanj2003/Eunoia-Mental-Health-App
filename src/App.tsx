@@ -103,6 +103,7 @@ const MentalHealthApp: React.FC = () => {
   const [isInitializing, setIsInitializing] = useState(true);
   const [isDeletingJournal, setIsDeletingJournal] = useState(false);
   const [isDeletingChat, setIsDeletingChat] = useState(false);
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
 
   // Touch handling for swipe gestures (used in onboarding)
   const [touchStart, setTouchStart] = useState<number | null>(null);
@@ -4945,27 +4946,40 @@ const MentalHealthApp: React.FC = () => {
 
             <Button
               className="w-full rounded-2xl !bg-red-600 hover:!bg-red-700 !text-white font-semibold"
-              onClick={async () => {
-                if (
-                  window.confirm(
-                    "Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently deleted."
-                  )
-                ) {
-                  try {
-                    const { authService } = await import(
-                      "./services/api.service"
-                    );
-                    await authService.deleteAccount();
-                    alert("Your account has been deleted successfully.");
-                    setCurrentUser(null);
-                    setCurrentScreen("login");
-                  } catch (error: any) {
-                    alert(
-                      error.response?.data?.message ||
-                        "Failed to delete account. Please try again."
-                    );
-                  }
-                }
+              onClick={() => {
+                if (isDeletingAccount) return; // Prevent multiple clicks
+                
+                setDeleteDialog({
+                  isOpen: true,
+                  title: "Delete Account",
+                  message:
+                    "Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently deleted.",
+                  onConfirm: async () => {
+                    try {
+                      setIsDeletingAccount(true);
+                      const { authService } = await import(
+                        "./services/api.service"
+                      );
+                      await authService.deleteAccount();
+                      alert("Your account has been deleted successfully.");
+                      setCurrentUser(null);
+                      setCurrentScreen("login");
+                    } catch (error: any) {
+                      alert(
+                        error.response?.data?.message ||
+                          "Failed to delete account. Please try again."
+                      );
+                    } finally {
+                      setIsDeletingAccount(false);
+                      setDeleteDialog({
+                        isOpen: false,
+                        title: "",
+                        message: "",
+                        onConfirm: () => {},
+                      });
+                    }
+                  },
+                });
               }}
             >
               Delete My Account and Data
